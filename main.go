@@ -30,7 +30,7 @@ object:
   objectInt: 10
   objectString: pelle
 int: 11
-string: this is a string`)
+  string: :`)
 var unmarshalledData TestStruct
 var unmarshalledData2 TestStruct2
 

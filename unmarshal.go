@@ -96,6 +96,7 @@ func (dataState *DataState) unmarshal (target any, depth int) {
                     }
                     refValTarget.Field(i).SetInt(value)
                 case reflect.String:
+					fmt.Printf("string: %v\n", v)
                     refValTarget.Field(i).SetString(v)
                 default:
                     fmt.Println("unhandled type", refTypeTarget.Field(i).Type.Kind(), refTypeTarget.Field(i).Tag.Get("yaml"))
@@ -111,8 +112,8 @@ func (dataState *DataState) unmarshal (target any, depth int) {
 func (dataState *DataState) readLine () (int, string, string) {
     var (
         depth      int    = 0
-        key        string
-        value      string
+        key        []byte = make([]byte, 0)
+        value      []byte = make([]byte, 0)
         depthFound bool   = false
         keyFound   bool   = false
     )
@@ -129,9 +130,9 @@ func (dataState *DataState) readLine () (int, string, string) {
         }
 
         if !keyFound && dataState.data[i] != UTF8_COLON {
-            key += string(dataState.data[i])
+            key = append(key, dataState.data[i])
             continue
-        } else if dataState.data[i] == UTF8_COLON {
+        } else if !keyFound && dataState.data[i] == UTF8_COLON {
             keyFound = true
             if len(dataState.data) > i + 1 && dataState.data[i + 1] == UTF8_SPACE {
                 i++
@@ -141,7 +142,7 @@ func (dataState *DataState) readLine () (int, string, string) {
         }
 
         if dataState.data[i] != UTF8_LF {
-            value += string(dataState.data[i])
+            value = append(value, dataState.data[i])
         } else if dataState.data[i] == UTF8_LF {
             break
         }
@@ -155,5 +156,5 @@ func (dataState *DataState) readLine () (int, string, string) {
 		depth = depth / dataState.minDepth
 	}
 
-    return depth, key, value
+    return depth, string(key), string(value)
 }
